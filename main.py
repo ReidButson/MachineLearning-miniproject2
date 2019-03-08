@@ -75,4 +75,5 @@ def createChild(parent1, parent2, mutate_chance):
         return child
 
 
-
+if __name__ == '__main__':
+    print('hello')
