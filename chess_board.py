@@ -41,9 +41,12 @@ class ChessBoard:
     def __init__(self, mutation_chance, parent1=None, parent2=None):
         """Initializes a new chess board with random queen locations."""
 
+        # Set mutation chance
+        self.mutation_chance = mutation_chance
+
         # Generate using genetics
         if parent1 is not None and parent2 is not None:
-            self.chromosome = ChessBoard.create_child(parent1.chromosomes, parent2.chromosomes, mutation_chance)
+            self.chromosome = self.create_child(parent1.chromosome, parent2.chromosome)
         # If only one parent is None, throw error as this should never occur
         elif (parent1 is not None and parent2 is None) or (parent1 is None and parent2 is not None):
             raise ValueError('One of the given parents was None', parent1, parent2)
@@ -51,8 +54,8 @@ class ChessBoard:
         else:
             self.chromosome = random.sample(range(1, 9), 8)
 
-        # Set mutation chance
-        self.mutation_chance = mutation_chance
+        # Calculate the fitness of the board
+        self.check_collisions()
 
     def check_collisions(self):
         """Checks and returns the number of collisions, and sets the fitness"""
@@ -170,8 +173,6 @@ class ChessBoard:
         Returns:
             list: a new chromosome from the parents genes
         """
-        if len(parent1) != len(parent2):
-            raise ValueError("Both Parents should have the same length")
 
         # Creates child as first half of parent1
         cross_point = random.randint(0, len(parent1))
@@ -193,8 +194,6 @@ class ChessBoard:
         Returns:
             list: the original chromosome with two random genes flipped
         """
-        if type(chromosome) != list:
-            raise TypeError("Chromosomes should be of type list")
 
         # random element index
         mutation_point = random.randint(0, len(chromosome))
@@ -214,12 +213,6 @@ class ChessBoard:
         Returns:
             list: a new chromosome from the parents genes, possibly mutated
         """
-
-        if self.mutation_chance < 0 or self.mutation_chance > 1:
-            raise ValueError("Mutate probability should be between 0 and 1")
-
-        if len(parent1) != len(parent2):
-            raise ValueError("Length of parent chromosomes should be the same")
 
         child = ChessBoard.crossover(parent1, parent2)
 
