@@ -1,79 +1,57 @@
-import random
+from chess_board import ChessBoard
+import numpy as np
+from threading import Thread
+import sys
 
-def crossover(parent1, parent2):
-    """
-    creates a new child chromosome from two parents
 
-    Args:
-        parent1 (list): first chromosome
-        parent2 (list): second chromosome
-
-    Returns:
-        list: a new chromosome from the parents genes
-    """
-    if len(parent1) != len(parent2):
-        raise ValueError("Both Parents should have the same length")
-
-    #Creates child as first half of parent1
-    cross_point = random.randint(0, len(parent1))
-    child_head = parent1[:cross_point]
-
-    #takes remaining genes from second parent
-    child_tail = [gene for gene in parent2 if gene not in child_head]
-
-    return child_head + child_tail
-
-def mutate(chromosome):
-    """
-    Mutates a chromosome by flipping two random genes
+def run_genetic_algorithm(population_size, mutation_chance, number_of_children):
+    """Runs a genetic algorithm.
 
     Args:
-        chromosome (list) the chromosome to mutate
-
-    Returns:
-        list: the original chromosome with two random genes flipped
-    """
-    if type(chromosome) != list:
-        raise TypeError("Chromosomes should be of type list")
-
-    # random element index
-    mutation_point = random.randint(0, len(chromosome))
-
-    # Swaps the two genes, note any list at -1 is the last element in the list so no out of bound check is required
-    chromosome[mutation_point], chromosome[mutation_point - 1] = chromosome[mutation_point - 1], chromosome[mutation_point]
-
-def createChild(parent1, parent2, mutate_chance):
-    """
-    creates a new child and mutates it based on the mutation probability
-
-    Args:
-        parent1 (list): first chromosome
-        parent2 (list): second chromosome
-
-        mutate_chance (float): probability of mutation between 0 and 1
-
-    Returns:
-        list: a new chromosome from the parents genes, possibly mutated
+        population_size (int): The size of the population to create
+        mutation_chance (int): The chance in which a mutation can occur. Value between 0 and 1.
+        number_of_children (int): The number of children to breed each round.
     """
 
-    if mutate_chance < 0 or mutate_chance > 1:
-        raise ValueError("Mutate probability should be between 0 and 1")
+    # Create the weighted probability for roulette wheel selection to be used in breeding
+    breed_weights = [0.4, 0.2, 0.15, 0.15, 0.1]
 
-    if len(parent1) != len(parent2):
-        raise ValueError("Length of parent chromosomes should be the same")
+    # Create the population
+    population = []
+    for i in range(population_size):
+        population.append(ChessBoard(mutation_chance))
 
-    child = crossover(parent1, parent2)
+    # Loop endlessly to run the genetic algorithm
+    while True:
+        # Sort population by fitness, with most fit candidates first in the list
+        population.sort(reverse=True)
+        # Check the list to see if any of the population is a solution
+        for board in population:
+            # Checks to see if the board is a solution
+            if board:
+                # TODO add to solution list
+                pass
+            # Breaks if the current board was not a solution, as nothing after it in the sorted list will be
+            else:
+                break
 
-    # rolls a number between 0 and 1
-    roll = random.random()
-
-    # if roll is below the mutation probability it mutates the child
-    if roll < mutate_chance:
-        return mutate(child)
-
-    else:
-        return child
+    # Pick the parents for the next generation
+    # TODO
+    pass
 
 
 if __name__ == '__main__':
-    print('hello')
+    # Get population size and mutation chance
+    if len(sys.argv) != 4:
+        print('Please give population size, mutation chance, and thread count as command line arguments')
+        exit(-1)
+    size = sys.argv[1]
+    chance = sys.argv[2]
+    thread_count = sys.argv[3]
+
+    # The list of solutions that were found
+    solutions = []
+
+    # Create threads for the different populations equal to the number given
+    # TODO
+    pass
