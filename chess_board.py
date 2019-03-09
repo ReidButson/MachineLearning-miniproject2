@@ -6,33 +6,33 @@ class ChessBoard:
 
     # Create the lists to store values, allowing us to check for clashes easily
     # Positive slope lists
-    a7p = []
-    a6p = []
-    a5p = []
-    a4p = []
-    a3p = []
-    a2p = []
-    a1p = []
-    b1p = []
-    c1p = []
-    d1p = []
-    e1p = []
-    f1p = []
-    g1p = []
+    a7p = 0
+    a6p = 0
+    a5p = 0
+    a4p = 0
+    a3p = 0
+    a2p = 0
+    a1p = 0
+    b1p = 0
+    c1p = 0
+    d1p = 0
+    e1p = 0
+    f1p = 0
+    g1p = 0
     # Negative slope lists
-    a2n = []
-    a3n = []
-    a4n = []
-    a5n = []
-    a6n = []
-    a7n = []
-    a8n = []
-    b8n = []
-    c8n = []
-    d8n = []
-    e8n = []
-    f8n = []
-    g8n = []
+    a2n = 0
+    a3n = 0
+    a4n = 0
+    a5n = 0
+    a6n = 0
+    a7n = 0
+    a8n = 0
+    b8n = 0
+    c8n = 0
+    d8n = 0
+    e8n = 0
+    f8n = 0
+    g8n = 0
 
     chromosome = []
 
@@ -68,10 +68,10 @@ class ChessBoard:
             diagonals = lookup_table['{}{}'.format(index + 1, gene)]
             # Determine collisions in diagonals
             for diagonal in diagonals:
-                diagonal.append((index + 1, gene))
+                diagonal += 1
                 # Increment collisions if applicable
-                if len(diagonal) > 1:
-                    collisions += len(diagonal) - 1
+                if diagonal > 1:
+                    collisions += diagonal - 1
 
         # The maximum number of collisions that can occur is 28, so inverse for fitness
         self.fitness = 28 - collisions
