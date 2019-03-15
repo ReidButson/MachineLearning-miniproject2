@@ -175,7 +175,7 @@ def main():
             if n_queens <= 0:
                 raise ValueError
         except ValueError:
-            print('the dimension of the problem must be greater than 0')
+            print('the dimension of the problem must be greater than 0, and must be passed as an int')
             exit(-4)
     else:
         n_queens = n_queens_def
