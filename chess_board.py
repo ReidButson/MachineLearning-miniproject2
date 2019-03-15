@@ -1,5 +1,4 @@
 import random
-from threading import Lock
 
 
 class ChessBoard:
@@ -81,15 +80,22 @@ class ChessBoard:
         '88': (6, 27)
     }
 
-    chromosome = []
-
     fitness = None
 
+    mutation_chance = 0.2
+
     def __init__(self, mutation_chance, parent1=None, parent2=None):
-        """Initializes a new chess board with random queen locations."""
+        """Initializes a new chess board with random queen locations.
+
+        Args:
+            mutation_chance (float): The chance a node has to mutate from 0 to 1.
+            parent1 (ChessBoard): The object representing parent 1 of the node.
+            parent2 (ChessBoard): The object representing parent 2 of the node.
+        """
 
         # Set mutation chance
         self.mutation_chance = mutation_chance
+
 
         # Generate using genetics
         if parent1 is not None and parent2 is not None:
@@ -103,6 +109,16 @@ class ChessBoard:
 
         # Calculate the fitness of the board
         self.check_collisions()
+
+    @staticmethod
+    def setup_statics(dimensions):
+        """Sets the dimension for the problem, which also sets up the lookup table for the class.
+
+        Args:
+            dimensions (int): The dimensions for the
+        """
+        # TODO
+        pass
 
     def check_collisions(self):
         """Checks and returns the number of collisions, and sets the fitness"""
