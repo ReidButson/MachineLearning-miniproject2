@@ -1,3 +1,4 @@
+import numpy as np
 import random
 
 
@@ -5,97 +6,20 @@ class ChessBoard:
     """Class representing a chess board. The chess board contains a list of queens on the chess board."""
 
     # The lookup table to use when calculating collisions, which holds all the diagonals to increment given any queen
-    # For a description of the index values, see the check_collision function
-    lookup_table = {
-        '11': (6, 26),
-        '12': (5, 13),
-        '13': (4, 14),
-        '14': (3, 15),
-        '15': (2, 16),
-        '16': (1, 17),
-        '17': (0, 18),
-        '18': (19, 26),
+    # For a description of the index values, see the check_collision function. The lookup table is created using
+    # gen_lookup, and is done inside of setup_statics automatically.
+    lookup_table = None
 
-        '21': (7, 13),
-        '22': (6, 14),
-        '23': (5, 15),
-        '24': (4, 16),
-        '25': (3, 17),
-        '26': (2, 18),
-        '27': (1, 19),
-        '28': (0, 20),
-
-        '31': (8, 14),
-        '32': (7, 15),
-        '33': (6, 16),
-        '34': (5, 17),
-        '35': (4, 18),
-        '36': (3, 19),
-        '37': (2, 20),
-        '38': (1, 21),
-
-        '41': (9, 15),
-        '42': (8, 16),
-        '43': (7, 17),
-        '44': (6, 18),
-        '45': (5, 19),
-        '46': (4, 20),
-        '47': (3, 21),
-        '48': (2, 22),
-
-        '51': (10, 16),
-        '52': (9, 17),
-        '53': (8, 18),
-        '54': (7, 19),
-        '55': (6, 20),
-        '56': (5, 21),
-        '57': (4, 22),
-        '58': (3, 23),
-
-        '61': (11, 17),
-        '62': (10, 18),
-        '63': (9, 19),
-        '64': (8, 20),
-        '65': (7, 21),
-        '66': (6, 22),
-        '67': (5, 23),
-        '68': (4, 24),
-
-        '71': (12, 18),
-        '72': (11, 19),
-        '73': (10, 20),
-        '74': (9, 21),
-        '75': (8, 22),
-        '76': (7, 23),
-        '77': (6, 24),
-        '78': (5, 25),
-
-        '81': (19, 27),
-        '82': (12, 20),
-        '83': (11, 21),
-        '84': (10, 22),
-        '85': (9, 23),
-        '86': (8, 24),
-        '87': (7, 25),
-        '88': (6, 27)
-    }
-
-    fitness = None
-
+    dimensions = 8
     mutation_chance = 0.2
 
-    def __init__(self, mutation_chance, parent1=None, parent2=None):
-        """Initializes a new chess board with random queen locations.
+    def __init__(self, parent1=None, parent2=None):
+        """Initializes a new chess board with random queen locations or with parents if the parents are given.
 
         Args:
-            mutation_chance (float): The chance a node has to mutate from 0 to 1.
             parent1 (ChessBoard): The object representing parent 1 of the node.
             parent2 (ChessBoard): The object representing parent 2 of the node.
         """
-
-        # Set mutation chance
-        self.mutation_chance = mutation_chance
-
 
         # Generate using genetics
         if parent1 is not None and parent2 is not None:
@@ -105,20 +29,58 @@ class ChessBoard:
             raise ValueError('One of the given parents was None', parent1, parent2)
         # Create a random chess board
         else:
-            self.chromosome = random.sample(range(1, 9), 8)
+            self.chromosome = random.sample(range(1, ChessBoard.dimensions + 1), ChessBoard.dimensions)
 
+        # Creates the variable for fitness, which will be overwritten with the check_collisions function below
+        self.fitness = None
         # Calculate the fitness of the board
         self.check_collisions()
 
     @staticmethod
-    def setup_statics(dimensions):
+    def setup_statics(dimensions=8, mutation_chance=0.02):
         """Sets the dimension for the problem, which also sets up the lookup table for the class.
 
         Args:
-            dimensions (int): The dimensions for the
+            dimensions (int): The dimensions for the board, as well as the number of queens on the board. Defaults to 8.
+            mutation_chance (float): The percent chance for mutation to occur. Defaults to 0.02.
         """
-        # TODO
-        pass
+
+        # Set all the static variables
+        ChessBoard.dimensions = dimensions
+        ChessBoard.mutation_chance = mutation_chance
+
+        # Generate the lookup table for the chessboard, and set it to the global lookup table, using the given dimension
+        ChessBoard.lookup_table = ChessBoard.gen_lookup(ChessBoard.dimensions)
+
+    @staticmethod
+    def gen_lookup(x):
+        """
+        Creates an array containing indexes that represent the diagonal
+            3x3 example:
+            (0, 7)  (1, 8)  (2, 9)
+            (1, 6)  (2, 7)  (3, 8)
+            (2, 5)  (3, 6)  (4, 7)
+
+        Args:
+            x (int): The number of queens in the problem
+        Returns:
+            Array: An x * x * 2 array containing indices for diagonals
+        """
+
+        # d is half the amount of diagonals
+        d = 2 * x - 1
+
+        # Empty x * x * 2 array
+        table = np.array([[(0, 0)] * x] * x)
+
+        for i in range(x):
+            for j in range(x):
+                # Labels each tile with the diagonal in the negative direction
+                table[x - i - 1, j][0] = d + j + i
+                # Labels each tile with the diagonal in the positive direction
+                table[i, j][1] = j + i
+
+        return table
 
     def check_collisions(self):
         """Checks and returns the number of collisions, and sets the fitness"""
@@ -156,7 +118,8 @@ class ChessBoard:
         # left = 26
         # right = 27
 
-        diagonal_collision_list = [0] * 28
+        # Collision list is proportional to the dimension of the problem
+        diagonal_collision_list = [0] * (4 * ChessBoard.dimensions - 2)
 
         # The number of collisions that have occurred.
         collisions = 0
@@ -164,7 +127,7 @@ class ChessBoard:
         # Loop through each gene to determine its diagonal
         for index, gene in enumerate(self.chromosome):
             # Get diagonals
-            diagonals = ChessBoard.lookup_table['{}{}'.format(index + 1, gene)]
+            diagonals = ChessBoard.lookup_table[index, gene - 1]
             # Determine collisions in diagonals
 
             # Increment the first diagonal's collision value
@@ -223,7 +186,8 @@ class ChessBoard:
             chromosome[mutation_point - 1], chromosome[mutation_point]
         return chromosome
 
-    def create_child(self, parent1, parent2):
+    @staticmethod
+    def create_child(parent1, parent2):
         """
         creates a new child and mutates it based on the mutation probability
 
@@ -241,7 +205,7 @@ class ChessBoard:
         roll = random.random()
 
         # if roll is below the mutation probability it mutates the child
-        if roll < self.mutation_chance:
+        if roll < ChessBoard.mutation_chance:
             return ChessBoard.mutate(child)
 
         else:
